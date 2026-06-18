@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blog_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      # Единственный источник правды для секретов и настроек — .env в корне проекта.
+      # Скопируйте .env.example в .env перед первым запуском.
+      - .env
+    environment:
+      # Переопределяем ТОЛЬКО путь к БД: внутри контейнера файловая структура
+      # отличается от хоста (volume монтируется в /app/data), поэтому значение
+      # DATABASE_URL из .env (рассчитанное на локальный запуск) здесь не подходит.
+      DATABASE_URL: "sqlite:////app/data/blog.db"
+    volumes:
+      # Постоянное хранилище файла SQLite — данные не пропадут при перезапуске
+      - db_data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  db_data:
+    driver: local
