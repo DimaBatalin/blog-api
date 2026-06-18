@@ -91,7 +91,7 @@ def update_post_endpoint(
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     _check_post_ownership(current_user, post)
-    return update_post(db, post, data)
+    return update_post(db, post, data, actor_id=current_user.id)
 
 
 @router.delete(
@@ -108,7 +108,7 @@ def delete_post_endpoint(
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
     _check_post_ownership(current_user, post)
-    delete_post(db, post)
+    delete_post(db, post, actor_id=current_user.id)
 
 
 def _check_post_ownership(current_user: User, post) -> None:

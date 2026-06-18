@@ -73,7 +73,7 @@ def edit_comment(
     if not comment or comment.post_id != post_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
     _check_comment_ownership(current_user, comment)
-    return update_comment(db, comment, data)
+    return update_comment(db, comment, data, actor_id=current_user.id)
 
 
 @router.delete(
@@ -92,7 +92,7 @@ def remove_comment(
     if not comment or comment.post_id != post_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
     _check_comment_ownership(current_user, comment)
-    delete_comment(db, comment)
+    delete_comment(db, comment, actor_id=current_user.id)
 
 
 def _check_comment_ownership(current_user: User, comment) -> None:

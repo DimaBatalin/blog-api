@@ -10,7 +10,7 @@ from app.crud.category import (
     get_category_by_name,
     update_category,
 )
-from app.models.user import UserRole
+from app.models.user import User, UserRole
 from app.routers.deps import require_role
 from app.schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 
@@ -35,25 +35,30 @@ def get_category_endpoint(category_id: int, db: Session = Depends(get_db)):
     response_model=CategoryResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Create category (Moderator only)",
-    dependencies=[Depends(require_role(UserRole.MODERATOR))],
 )
-def create_category_endpoint(data: CategoryCreate, db: Session = Depends(get_db)):
+def create_category_endpoint(
+    data: CategoryCreate,
+    current_user: User = Depends(require_role(UserRole.MODERATOR)),
+    db: Session = Depends(get_db),
+):
     if get_category_by_name(db, data.name):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Category with this name already exists",
         )
-    return create_category(db, data)
+    return create_category(db, data, actor_id=current_user.id)
 
 
 @router.put(
     "/{category_id}",
     response_model=CategoryResponse,
     summary="Update category (Moderator only)",
-    dependencies=[Depends(require_role(UserRole.MODERATOR))],
 )
 def update_category_endpoint(
-    category_id: int, data: CategoryUpdate, db: Session = Depends(get_db)
+    category_id: int,
+    data: CategoryUpdate,
+    current_user: User = Depends(require_role(UserRole.MODERATOR)),
+    db: Session = Depends(get_db),
 ):
     cat = get_category(db, category_id)
     if not cat:
@@ -64,17 +69,20 @@ def update_category_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Category with this name already exists",
         )
-    return update_category(db, cat, data)
+    return update_category(db, cat, data, actor_id=current_user.id)
 
 
 @router.delete(
     "/{category_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete category (Moderator only)",
-    dependencies=[Depends(require_role(UserRole.MODERATOR))],
 )
-def delete_category_endpoint(category_id: int, db: Session = Depends(get_db)):
+def delete_category_endpoint(
+    category_id: int,
+    current_user: User = Depends(require_role(UserRole.MODERATOR)),
+    db: Session = Depends(get_db),
+):
     cat = get_category(db, category_id)
     if not cat:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-    delete_category(db, cat)
+    delete_category(db, cat, actor_id=current_user.id)

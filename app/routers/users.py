@@ -70,7 +70,7 @@ def patch_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only Moderators can change roles",
         )
-    return update_user(db, user, data)
+    return update_user(db, user, data, actor_id=current_user.id)
 
 
 @router.delete(
@@ -88,4 +88,4 @@ def remove_user(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     if current_user.id != user_id and current_user.role != UserRole.MODERATOR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
-    delete_user(db, user)
+    delete_user(db, user, actor_id=current_user.id)

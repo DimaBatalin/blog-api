@@ -10,7 +10,7 @@ from app.core.logging import get_logger, setup_logging
 # Import all models so SQLAlchemy registers them before create_all
 from app import models  # noqa: F401
 
-from app.routers import auth, categories, comments, likes, posts, users
+from app.routers import auth, categories, comments, likes, logs, posts, users
 
 setup_logging()
 logger = get_logger(__name__)
@@ -88,6 +88,7 @@ def create_app() -> FastAPI:
     app.include_router(posts.router, prefix=api_prefix)
     app.include_router(comments.router, prefix=api_prefix)
     app.include_router(likes.router, prefix=api_prefix)
+    app.include_router(logs.router, prefix=api_prefix)
 
     # ---------------------------------------------------------------------------
     # Startup: create DB tables

@@ -6,6 +6,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.logging import get_logger
+from app.crud.action_log import log_action
+from app.models.action_log import ActionType, EntityType
 from app.models.category import Category
 from app.models.like import Like
 from app.models.post import Post, PostStatus
@@ -92,6 +94,15 @@ def create_post(db: Session, data: PostCreate, author_id: int) -> Post:
         published_at=published_at,
     )
     db.add(post)
+    db.flush()
+    log_action(
+        db,
+        entity_type=EntityType.POST,
+        entity_id=post.id,
+        action=ActionType.CREATE,
+        user_id=author_id,
+        details=f"title={post.title!r}, status={post.status.value}",
+    )
     db.commit()
     db.refresh(post)
     post.likes_count = 0
@@ -99,19 +110,32 @@ def create_post(db: Session, data: PostCreate, author_id: int) -> Post:
     return post
 
 
-def update_post(db: Session, post: Post, data: PostUpdate) -> Post:
+def update_post(db: Session, post: Post, data: PostUpdate, actor_id: int) -> Post:
+    changes = []
     if data.title is not None:
+        changes.append(f"title: {post.title!r} -> {data.title!r}")
         post.title = data.title
     if data.content is not None:
+        changes.append("content changed")
         post.content = data.content
     if data.status is not None:
         if data.status == PostStatus.PUBLISHED and post.status == PostStatus.DRAFT:
             post.published_at = datetime.now(timezone.utc)
+        changes.append(f"status: {post.status.value} -> {data.status.value}")
         post.status = data.status
     if data.category_id is not None:
+        changes.append(f"category_id -> {data.category_id}")
         post.category_id = data.category_id
 
     post.updated_at = datetime.now(timezone.utc)
+    log_action(
+        db,
+        entity_type=EntityType.POST,
+        entity_id=post.id,
+        action=ActionType.UPDATE,
+        user_id=actor_id,
+        details="; ".join(changes) if changes else None,
+    )
     db.commit()
     db.refresh(post)
     # Re-fetch likes count
@@ -122,7 +146,16 @@ def update_post(db: Session, post: Post, data: PostUpdate) -> Post:
     return post
 
 
-def delete_post(db: Session, post: Post) -> None:
+def delete_post(db: Session, post: Post, actor_id: int) -> None:
+    post_id, title = post.id, post.title
     db.delete(post)
+    log_action(
+        db,
+        entity_type=EntityType.POST,
+        entity_id=post_id,
+        action=ActionType.DELETE,
+        user_id=actor_id,
+        details=f"title={title!r}",
+    )
     db.commit()
-    logger.info("Deleted post id=%d", post.id)
+    logger.info("Deleted post id=%d", post_id)
