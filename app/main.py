@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.core.database import Base, engine
 from app.core.logging import get_logger, setup_logging
 
-# Import all models so SQLAlchemy registers them before create_all
+
 from app import models  # noqa: F401
 
 from app.routers import auth, categories, comments, likes, logs, posts, users
@@ -18,7 +18,7 @@ logger = get_logger(__name__)
 
 def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
-    logger.info("Database tables ensured / created.")
+    logger.info("Таблицы БД проверены / созданы.")
 
 
 def create_app() -> FastAPI:
@@ -34,9 +34,7 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # ---------------------------------------------------------------------------
-    # CORS (разрешаем всё для разработки; в продакшне укажите конкретные origins)
-    # ---------------------------------------------------------------------------
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -45,9 +43,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # ---------------------------------------------------------------------------
-    # Exception handlers
-    # ---------------------------------------------------------------------------
+
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(
         request: Request, exc: RequestValidationError
@@ -72,14 +68,14 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
-        logger.error("Unhandled error on %s: %s", request.url, exc, exc_info=True)
+        logger.error("Необработанная ошибка на %s: %s", request.url, exc, exc_info=True)
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"detail": "Internal server error"},
+            content={"detail": "Внутренняя ошибка сервера"},
         )
 
     # ---------------------------------------------------------------------------
-    # Routers
+    # Роутеры
     # ---------------------------------------------------------------------------
     api_prefix = "/api"
     app.include_router(auth.router, prefix=api_prefix)
@@ -91,14 +87,14 @@ def create_app() -> FastAPI:
     app.include_router(logs.router, prefix=api_prefix)
 
     # ---------------------------------------------------------------------------
-    # Startup: create DB tables
+    # Старт приложения: создание таблиц БД
     # ---------------------------------------------------------------------------
     @app.on_event("startup")
     def on_startup():
         create_tables()
-        logger.info("Application '%s' started.", settings.APP_NAME)
+        logger.info("Приложение '%s' запущено.", settings.APP_NAME)
 
-    @app.get("/", tags=["Health"], summary="Health check")
+    @app.get("/", tags=["Состояние сервиса"], summary="Проверка работоспособности")
     def health():
         return {"status": "ok", "app": settings.APP_NAME, "version": settings.APP_VERSION}
 

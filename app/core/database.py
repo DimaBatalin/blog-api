@@ -5,7 +5,7 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.config import settings
 
-# Ensure the data directory exists when using SQLite
+# Создаём директорию для файла БД, если используется SQLite
 if settings.DATABASE_URL.startswith("sqlite"):
     db_path = settings.DATABASE_URL.replace("sqlite:///", "")
     db_dir = os.path.dirname(db_path)
@@ -14,12 +14,12 @@ if settings.DATABASE_URL.startswith("sqlite"):
 
 engine = create_engine(
     settings.DATABASE_URL,
-    connect_args={"check_same_thread": False},  # SQLite only
+    connect_args={"check_same_thread": False},  # только для SQLite
     echo=settings.DEBUG,
 )
 
 
-# Enable WAL mode for SQLite to allow concurrent reads
+# Включаем режим WAL для SQLite, чтобы разрешить параллельное чтение
 @event.listens_for(engine, "connect")
 def set_sqlite_pragma(dbapi_conn, connection_record):
     cursor = dbapi_conn.cursor()
@@ -36,7 +36,7 @@ class Base(DeclarativeBase):
 
 
 def get_db():
-    """Dependency that provides a database session per request."""
+    """Зависимость, предоставляющая сессию БД на время одного запроса."""
     db = SessionLocal()
     try:
         yield db

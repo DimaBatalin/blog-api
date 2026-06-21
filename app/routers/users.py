@@ -10,13 +10,13 @@ from app.schemas.user import UserResponse, UserUpdate
 
 logger = get_logger(__name__)
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/users", tags=["Пользователи"])
 
 
 @router.get(
     "/me",
     response_model=UserResponse,
-    summary="Get current user profile",
+    summary="Профиль текущего пользователя",
 )
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
@@ -25,7 +25,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 @router.get(
     "/",
     response_model=list[UserResponse],
-    summary="List all users (Moderator only)",
+    summary="Список всех пользователей (только Moderator)",
     dependencies=[Depends(require_role(UserRole.MODERATOR))],
 )
 def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -35,7 +35,7 @@ def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @router.get(
     "/{user_id}",
     response_model=UserResponse,
-    summary="Get user by ID",
+    summary="Пользователь по ID",
 )
 def get_user_by_id(
     user_id: int,
@@ -44,14 +44,14 @@ def get_user_by_id(
 ):
     user = get_user(db, user_id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
     return user
 
 
 @router.patch(
     "/{user_id}",
     response_model=UserResponse,
-    summary="Update user (self or Moderator)",
+    summary="Обновление пользователя (сам пользователь или Moderator)",
 )
 def patch_user(
     user_id: int,
@@ -61,14 +61,14 @@ def patch_user(
 ):
     user = get_user(db, user_id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    # Only moderator can edit others or change roles
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+    # Изменять чужой профиль или роль может только модератор
     if current_user.id != user_id and current_user.role != UserRole.MODERATOR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ запрещён")
     if data.role is not None and current_user.role != UserRole.MODERATOR:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only Moderators can change roles",
+            detail="Изменять роль может только Moderator",
         )
     return update_user(db, user, data, actor_id=current_user.id)
 
@@ -76,7 +76,7 @@ def patch_user(
 @router.delete(
     "/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete user (self or Moderator)",
+    summary="Удаление пользователя (сам пользователь или Moderator)",
 )
 def remove_user(
     user_id: int,
@@ -85,7 +85,7 @@ def remove_user(
 ):
     user = get_user(db, user_id)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
     if current_user.id != user_id and current_user.role != UserRole.MODERATOR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Доступ запрещён")
     delete_user(db, user, actor_id=current_user.id)

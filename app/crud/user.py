@@ -42,7 +42,7 @@ def create_user(db: Session, data: UserCreate) -> User:
     )
     db.commit()
     db.refresh(user)
-    logger.info("Created user id=%d username=%s role=%s", user.id, user.username, user.role)
+    logger.info("Создан пользователь id=%d username=%s role=%s", user.id, user.username, user.role)
     return user
 
 
@@ -52,7 +52,7 @@ def update_user(db: Session, user: User, data: UserUpdate, actor_id: int) -> Use
         changes.append(f"username: {user.username} -> {data.username}")
         user.username = data.username
     if data.password is not None:
-        changes.append("password changed")
+        changes.append("пароль изменён")
         user.password_hash = hash_password(data.password)
     if data.role is not None:
         changes.append(f"role: {user.role.value} -> {data.role.value}")
@@ -68,7 +68,7 @@ def update_user(db: Session, user: User, data: UserUpdate, actor_id: int) -> Use
     )
     db.commit()
     db.refresh(user)
-    logger.info("Updated user id=%d", user.id)
+    logger.info("Обновлён пользователь id=%d", user.id)
     return user
 
 
@@ -84,7 +84,7 @@ def delete_user(db: Session, user: User, actor_id: int) -> None:
         details=f"username={username}",
     )
     db.commit()
-    logger.info("Deleted user id=%d", user_id)
+    logger.info("Удалён пользователь id=%d", user_id)
 
 
 def authenticate_user(

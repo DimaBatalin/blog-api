@@ -12,7 +12,7 @@ class Category(Base):
         String(128), unique=True, nullable=False, index=True
     )
 
-    # Relationships
+    # Связи
     posts = relationship("Post", back_populates="category")
 
     def __repr__(self) -> str:

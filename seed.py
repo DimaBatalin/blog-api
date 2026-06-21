@@ -110,7 +110,7 @@ COMMENTS = [
 
 
 def run_seed() -> None:
-    print("🌱 Начинаю заполнение базы данных…")
+    print("Заполнение базы данных...")
 
     Base.metadata.create_all(bind=engine)
 
@@ -129,10 +129,10 @@ def run_seed() -> None:
                 db.add(user)
                 db.flush()
                 created_users[u["username"]] = user
-                print(f"  ✅ Пользователь: {u['username']} ({u['role'].value})")
+                print(f"  + пользователь: {u['username']} ({u['role'].value})")
             else:
                 created_users[u["username"]] = existing
-                print(f"  ⏩ Пользователь уже существует: {u['username']}")
+                print(f"  - пользователь уже существует: {u['username']}")
 
         author = created_users["author_user"]
         reader = created_users["reader_user"]
@@ -147,10 +147,10 @@ def run_seed() -> None:
                 db.add(cat)
                 db.flush()
                 created_cats[name] = cat
-                print(f"  ✅ Категория: {name}")
+                print(f"  + категория: {name}")
             else:
                 created_cats[name] = existing
-                print(f"  ⏩ Категория уже существует: {name}")
+                print(f"  - категория уже существует: {name}")
 
         # ── Статьи ────────────────────────────────────────────────────────────
         from datetime import datetime, timezone
@@ -175,10 +175,10 @@ def run_seed() -> None:
                 db.add(post)
                 db.flush()
                 created_posts[p["title"]] = post
-                print(f"  ✅ Статья: «{p['title']}» ({p['status'].value})")
+                print(f"  + статья: «{p['title']}» ({p['status'].value})")
             else:
                 created_posts[p["title"]] = existing
-                print(f"  ⏩ Статья уже существует: «{p['title']}»")
+                print(f"  - статья уже существует: «{p['title']}»")
 
         # ── Комментарии ───────────────────────────────────────────────────────
         for i, c in enumerate(COMMENTS):
@@ -199,9 +199,9 @@ def run_seed() -> None:
                     text=c["text"],
                 )
                 db.add(comment)
-                print(f"  ✅ Комментарий к «{c['post_title']}»")
+                print(f"  + комментарий к «{c['post_title']}»")
             else:
-                print("  ⏩ Комментарий уже существует")
+                print("  - комментарий уже существует")
 
         # ── Лайки ─────────────────────────────────────────────────────────────
         like_pairs = [
@@ -222,18 +222,18 @@ def run_seed() -> None:
             )
             if not existing:
                 db.add(Like(user_id=user_id, post_id=post.id))
-                print(f"  ✅ Лайк: user_id={user_id} → «{post_title}»")
+                print(f"  + лайк: user_id={user_id} -> «{post_title}»")
 
         db.commit()
-        print("\n🎉 База данных успешно заполнена!")
-        print("\n📋 Данные для входа:")
+        print("\nБаза данных успешно заполнена.")
+        print("\nДанные для входа:")
         print("  reader_user  / reader123  (Reader)")
         print("  author_user  / author123  (Author)")
         print("  moderator    / moder123   (Moderator)")
 
     except Exception as exc:
         db.rollback()
-        print(f"\n❌ Ошибка: {exc}")
+        print(f"\nОшибка: {exc}")
         raise
     finally:
         db.close()

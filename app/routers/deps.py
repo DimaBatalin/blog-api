@@ -18,39 +18,39 @@ def get_current_user(
     if credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
+            detail="Требуется аутентификация",
             headers={"WWW-Authenticate": "Bearer"},
         )
     payload = decode_access_token(credentials.credentials)
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail="Токен недействителен или просрочен",
             headers={"WWW-Authenticate": "Bearer"},
         )
     user_id: int | None = payload.get("sub")
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token payload",
+            detail="Некорректное содержимое токена",
         )
     user = get_user(db, int(user_id))
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="Пользователь не найден",
         )
     return user
 
 
 def require_role(*roles: UserRole):
-    """Factory that returns a dependency enforcing at least one of the given roles."""
+    """Фабрика зависимости, разрешающей доступ только пользователям с одной из указанных ролей."""
 
     def _check(current_user: User = Depends(get_current_user)) -> User:
         if current_user.role not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied. Required role(s): {[r.value for r in roles]}",
+                detail=f"Доступ запрещён. Требуется роль: {[r.value for r in roles]}",
             )
         return current_user
 

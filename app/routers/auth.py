@@ -9,38 +9,38 @@ from app.schemas.user import LoginRequest, TokenResponse, UserCreate, UserRespon
 
 logger = get_logger(__name__)
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix="/auth", tags=["Аутентификация"])
 
 
 @router.post(
     "/register",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Register a new user",
+    summary="Регистрация нового пользователя",
 )
 def register(data: UserCreate, db: Session = Depends(get_db)):
     if get_user_by_username(db, data.username):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already taken",
+            detail="Это имя пользователя уже занято",
         )
     user = create_user(db, data)
-    logger.info("Registered user username=%s", user.username)
+    logger.info("Зарегистрирован пользователь username=%s", user.username)
     return user
 
 
 @router.post(
     "/login",
     response_model=TokenResponse,
-    summary="Obtain JWT access token",
+    summary="Получение JWT-токена",
 )
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     user = authenticate_user(db, data.username, data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Неверное имя пользователя или пароль",
         )
     token = create_access_token({"sub": str(user.id), "role": user.role.value})
-    logger.info("User id=%d logged in", user.id)
+    logger.info("Пользователь id=%d вошёл в систему", user.id)
     return TokenResponse(access_token=token)

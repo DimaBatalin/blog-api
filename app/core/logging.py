@@ -3,7 +3,7 @@ import sys
 
 
 def setup_logging() -> None:
-    """Configure application-wide logging."""
+    """Настраивает логирование для всего приложения."""
     log_format = (
         "%(asctime)s | %(levelname)-8s | %(name)s:%(lineno)d | %(message)s"
     )
@@ -14,7 +14,7 @@ def setup_logging() -> None:
             logging.StreamHandler(sys.stdout),
         ],
     )
-    # Silence noisy third-party loggers
+    # Снижаем уровень логирования у "болтливых" сторонних библиотек
     logging.getLogger("passlib").setLevel(logging.WARNING)
 
 

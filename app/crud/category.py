@@ -37,7 +37,7 @@ def create_category(db: Session, data: CategoryCreate, actor_id: int) -> Categor
     )
     db.commit()
     db.refresh(category)
-    logger.info("Created category id=%d name=%s", category.id, category.name)
+    logger.info("Создана категория id=%d name=%s", category.id, category.name)
     return category
 
 
@@ -56,7 +56,7 @@ def update_category(
     )
     db.commit()
     db.refresh(category)
-    logger.info("Updated category id=%d", category.id)
+    logger.info("Обновлена категория id=%d", category.id)
     return category
 
 
@@ -72,4 +72,4 @@ def delete_category(db: Session, category: Category, actor_id: int) -> None:
         details=f"name={name}",
     )
     db.commit()
-    logger.info("Deleted category id=%d", category_id)
+    logger.info("Удалена категория id=%d", category_id)

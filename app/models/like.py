@@ -25,7 +25,7 @@ class Like(Base):
         UniqueConstraint("user_id", "post_id", name="uq_like_user_post"),
     )
 
-    # Relationships
+    # Связи
     user = relationship("User", back_populates="likes")
     post = relationship("Post", back_populates="likes")
 

@@ -14,20 +14,20 @@ from app.models.user import User, UserRole
 from app.routers.deps import get_current_user
 from app.schemas.comment import CommentCreate, CommentDetailResponse, CommentUpdate
 
-router = APIRouter(prefix="/posts/{post_id}/comments", tags=["Comments"])
+router = APIRouter(prefix="/posts/{post_id}/comments", tags=["Комментарии"])
 
 
 def _get_existing_post(post_id: int, db: Session):
     post = get_post(db, post_id)
     if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Статья не найдена")
     return post
 
 
 @router.get(
     "/",
     response_model=list[CommentDetailResponse],
-    summary="List comments for a post",
+    summary="Список комментариев к статье",
 )
 def list_comments(
     post_id: int,
@@ -43,7 +43,7 @@ def list_comments(
     "/",
     response_model=CommentDetailResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Add comment to a post (authenticated)",
+    summary="Добавление комментария к статье (для аутентифицированных)",
 )
 def add_comment(
     post_id: int,
@@ -59,7 +59,7 @@ def add_comment(
 @router.put(
     "/{comment_id}",
     response_model=CommentDetailResponse,
-    summary="Update comment (author=own, Moderator=any)",
+    summary="Изменение комментария (автор — только свой, Moderator — любой)",
 )
 def edit_comment(
     post_id: int,
@@ -71,7 +71,7 @@ def edit_comment(
     _get_existing_post(post_id, db)
     comment = get_comment(db, comment_id)
     if not comment or comment.post_id != post_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Комментарий не найден")
     _check_comment_ownership(current_user, comment)
     return update_comment(db, comment, data, actor_id=current_user.id)
 
@@ -79,7 +79,7 @@ def edit_comment(
 @router.delete(
     "/{comment_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete comment (author=own, Moderator=any)",
+    summary="Удаление комментария (автор — только свой, Moderator — любой)",
 )
 def remove_comment(
     post_id: int,
@@ -90,7 +90,7 @@ def remove_comment(
     _get_existing_post(post_id, db)
     comment = get_comment(db, comment_id)
     if not comment or comment.post_id != post_id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Комментарий не найден")
     _check_comment_ownership(current_user, comment)
     delete_comment(db, comment, actor_id=current_user.id)
 
@@ -102,5 +102,5 @@ def _check_comment_ownership(current_user: User, comment) -> None:
         return
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="You don't have permission to modify this comment",
+        detail="Недостаточно прав для изменения этого комментария",
     )

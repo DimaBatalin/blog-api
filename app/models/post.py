@@ -40,7 +40,7 @@ class Post(Base):
         onupdate=lambda: datetime.now(timezone.utc),
     )
 
-    # Relationships
+    # Связи
     author = relationship("User", back_populates="posts")
     category = relationship("Category", back_populates="posts")
     comments = relationship(

@@ -9,13 +9,13 @@ from app.models.user import User
 from app.routers.deps import get_current_user
 from app.schemas.like import LikeStatusResponse
 
-router = APIRouter(prefix="/posts/{post_id}/likes", tags=["Likes"])
+router = APIRouter(prefix="/posts/{post_id}/likes", tags=["Лайки"])
 
 
 @router.post(
     "/",
     response_model=LikeStatusResponse,
-    summary="Like a post (toggle: like if not liked, unlike if already liked)",
+    summary="Лайк статьи (переключатель: лайк, если не было — и наоборот)",
 )
 def toggle_like(
     post_id: int,
@@ -24,7 +24,7 @@ def toggle_like(
 ):
     post = get_post(db, post_id)
     if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Статья не найдена")
 
     existing = get_like(db, user_id=current_user.id, post_id=post_id)
     if existing:
@@ -36,7 +36,7 @@ def toggle_like(
             liked = True
         except IntegrityError:
             db.rollback()
-            liked = True  # race condition – already liked
+            liked = True  # гонка запросов – лайк уже поставлен параллельным запросом
 
     return LikeStatusResponse(liked=liked, likes_count=count_likes(db, post_id))
 
@@ -44,7 +44,7 @@ def toggle_like(
 @router.get(
     "/",
     response_model=LikeStatusResponse,
-    summary="Get like status for current user on a post",
+    summary="Статус лайка текущего пользователя на статье",
 )
 def like_status(
     post_id: int,
@@ -53,7 +53,7 @@ def like_status(
 ):
     post = get_post(db, post_id)
     if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Статья не найдена")
     existing = get_like(db, user_id=current_user.id, post_id=post_id)
     return LikeStatusResponse(
         liked=existing is not None,

@@ -37,7 +37,7 @@ def add_like(db: Session, user_id: int, post_id: int) -> Like:
     )
     db.commit()
     db.refresh(like)
-    logger.info("User id=%d liked post id=%d", user_id, post_id)
+    logger.info("Пользователь id=%d поставил лайк статье id=%d", user_id, post_id)
     return like
 
 
@@ -53,4 +53,4 @@ def remove_like(db: Session, like: Like) -> None:
         details=f"post_id={post_id}",
     )
     db.commit()
-    logger.info("User id=%d unliked post id=%d", user_id, post_id)
+    logger.info("Пользователь id=%d убрал лайк со статьи id=%d", user_id, post_id)

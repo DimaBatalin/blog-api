@@ -45,7 +45,7 @@ def get_posts(
     if author_id is not None:
         query = query.filter(Post.author_id == author_id)
 
-    # Sorting
+    # Сортировка
     if sort_by == "popular":
         likes_subq = (
             db.query(Like.post_id, func.count(Like.id).label("likes_count"))
@@ -62,7 +62,7 @@ def get_posts(
     pages = max(1, math.ceil(total / limit))
     items = query.offset((page - 1) * limit).limit(limit).all()
 
-    # Attach likes_count to each post instance manually
+    # Вручную добавляем количество лайков к каждой статье
     post_ids = [p.id for p in items]
     likes_counts = {}
     if post_ids:
@@ -106,7 +106,7 @@ def create_post(db: Session, data: PostCreate, author_id: int) -> Post:
     db.commit()
     db.refresh(post)
     post.likes_count = 0
-    logger.info("Created post id=%d author_id=%d", post.id, author_id)
+    logger.info("Создана статья id=%d author_id=%d", post.id, author_id)
     return post
 
 
@@ -116,7 +116,7 @@ def update_post(db: Session, post: Post, data: PostUpdate, actor_id: int) -> Pos
         changes.append(f"title: {post.title!r} -> {data.title!r}")
         post.title = data.title
     if data.content is not None:
-        changes.append("content changed")
+        changes.append("содержание изменено")
         post.content = data.content
     if data.status is not None:
         if data.status == PostStatus.PUBLISHED and post.status == PostStatus.DRAFT:
@@ -138,11 +138,11 @@ def update_post(db: Session, post: Post, data: PostUpdate, actor_id: int) -> Pos
     )
     db.commit()
     db.refresh(post)
-    # Re-fetch likes count
+    # Заново считаем количество лайков
     post.likes_count = (
         db.query(func.count(Like.id)).filter(Like.post_id == post.id).scalar() or 0
     )
-    logger.info("Updated post id=%d", post.id)
+    logger.info("Обновлена статья id=%d", post.id)
     return post
 
 
@@ -158,4 +158,4 @@ def delete_post(db: Session, post: Post, actor_id: int) -> None:
         details=f"title={title!r}",
     )
     db.commit()
-    logger.info("Deleted post id=%d", post_id)
+    logger.info("Удалена статья id=%d", post_id)

@@ -29,7 +29,7 @@ class User(Base):
         default=lambda: datetime.now(timezone.utc),
     )
 
-    # Relationships
+    # Связи
     posts = relationship(
         "Post", back_populates="author", cascade="all, delete-orphan"
     )

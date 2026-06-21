@@ -22,7 +22,7 @@ class Comment(Base):
         default=lambda: datetime.now(timezone.utc),
     )
 
-    # Relationships
+    # Связи
     post = relationship("Post", back_populates="comments")
     user = relationship("User", back_populates="comments")
 

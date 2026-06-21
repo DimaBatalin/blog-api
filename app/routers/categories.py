@@ -14,19 +14,19 @@ from app.models.user import User, UserRole
 from app.routers.deps import require_role
 from app.schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 
-router = APIRouter(prefix="/categories", tags=["Categories"])
+router = APIRouter(prefix="/categories", tags=["Категории"])
 
 
-@router.get("/", response_model=list[CategoryResponse], summary="List all categories")
+@router.get("/", response_model=list[CategoryResponse], summary="Список категорий")
 def list_categories(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return get_categories(db, skip=skip, limit=limit)
 
 
-@router.get("/{category_id}", response_model=CategoryResponse, summary="Get category by ID")
+@router.get("/{category_id}", response_model=CategoryResponse, summary="Категория по ID")
 def get_category_endpoint(category_id: int, db: Session = Depends(get_db)):
     cat = get_category(db, category_id)
     if not cat:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Категория не найдена")
     return cat
 
 
@@ -34,7 +34,7 @@ def get_category_endpoint(category_id: int, db: Session = Depends(get_db)):
     "/",
     response_model=CategoryResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Create category (Moderator only)",
+    summary="Создание категории (только Moderator)",
 )
 def create_category_endpoint(
     data: CategoryCreate,
@@ -44,7 +44,7 @@ def create_category_endpoint(
     if get_category_by_name(db, data.name):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Category with this name already exists",
+            detail="Категория с таким названием уже существует",
         )
     return create_category(db, data, actor_id=current_user.id)
 
@@ -52,7 +52,7 @@ def create_category_endpoint(
 @router.put(
     "/{category_id}",
     response_model=CategoryResponse,
-    summary="Update category (Moderator only)",
+    summary="Обновление категории (только Moderator)",
 )
 def update_category_endpoint(
     category_id: int,
@@ -62,12 +62,12 @@ def update_category_endpoint(
 ):
     cat = get_category(db, category_id)
     if not cat:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Категория не найдена")
     existing = get_category_by_name(db, data.name)
     if existing and existing.id != category_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Category with this name already exists",
+            detail="Категория с таким названием уже существует",
         )
     return update_category(db, cat, data, actor_id=current_user.id)
 
@@ -75,7 +75,7 @@ def update_category_endpoint(
 @router.delete(
     "/{category_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="Delete category (Moderator only)",
+    summary="Удаление категории (только Moderator)",
 )
 def delete_category_endpoint(
     category_id: int,
@@ -84,5 +84,5 @@ def delete_category_endpoint(
 ):
     cat = get_category(db, category_id)
     if not cat:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Категория не найдена")
     delete_category(db, cat, actor_id=current_user.id)

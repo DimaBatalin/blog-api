@@ -51,7 +51,7 @@ def create_comment(
     db.commit()
     db.refresh(comment)
     logger.info(
-        "Created comment id=%d post_id=%d user_id=%d",
+        "Создан комментарий id=%d post_id=%d user_id=%d",
         comment.id, post_id, user_id,
     )
     return comment
@@ -71,7 +71,7 @@ def update_comment(
     )
     db.commit()
     db.refresh(comment)
-    logger.info("Updated comment id=%d", comment.id)
+    logger.info("Обновлён комментарий id=%d", comment.id)
     return comment
 
 
@@ -87,4 +87,4 @@ def delete_comment(db: Session, comment: Comment, actor_id: int) -> None:
         details=f"post_id={post_id}",
     )
     db.commit()
-    logger.info("Deleted comment id=%d", comment_id)
+    logger.info("Удалён комментарий id=%d", comment_id)

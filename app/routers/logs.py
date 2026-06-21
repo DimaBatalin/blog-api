@@ -10,13 +10,13 @@ from app.models.user import UserRole
 from app.routers.deps import require_role
 from app.schemas.action_log import PaginatedActionLogsResponse
 
-router = APIRouter(prefix="/logs", tags=["Action Logs"])
+router = APIRouter(prefix="/logs", tags=["История действий"])
 
 
 @router.get(
     "/",
     response_model=PaginatedActionLogsResponse,
-    summary="История действий над сущностями (Moderator only)",
+    summary="История действий над сущностями (только Moderator)",
     dependencies=[Depends(require_role(UserRole.MODERATOR))],
 )
 def list_action_logs(
