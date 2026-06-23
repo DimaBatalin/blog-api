@@ -92,7 +92,7 @@ blog_api/
 
 ```bash
 # 1. Клонировать репозиторий
-git clone <repo-url>
+git clone `https://github.com/DimaBatalin/blog-api.git`
 cd blog_api
 
 # 2. Создать виртуальное окружение
@@ -122,7 +122,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ```bash
 # 1. Клонировать репозиторий
-git clone <repo-url>
+git clone `https://github.com/DimaBatalin/blog-api.git`
 cd blog_api
 
 # 2. Создать .env (единственный источник секретов — используется и compose, и приложением)
