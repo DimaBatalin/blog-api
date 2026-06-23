@@ -2,7 +2,7 @@
 
 REST API для блог-платформы с поддержкой ролевой модели, JWT-аутентификации, пагинации, фильтрации и сортировки.
 
----
+
 
 ## Описание проекта
 
@@ -16,7 +16,7 @@ REST API для блог-платформы с поддержкой ролево
 - **Автодокументация** через Swagger UI (`/docs`) и ReDoc (`/redoc`).
 - **Логирование** в двух дополняющих друг друга слоях: оперативные логи через стандартный модуль `logging` (вывод в stdout — для мониторинга/дебага в реальном времени) и **постоянная история действий** в таблице БД `action_logs` — доступна через `GET /api/logs` и переживает перезапуск контейнера.
 
----
+
 
 ## Технологический стек
 
@@ -33,7 +33,7 @@ REST API для блог-платформы с поддержкой ролево
 | SQLite            | (встроенный)|
 | Docker / Compose  | 24+ / 2+    |
 
----
+
 
 ## Структура проекта
 
@@ -41,42 +41,42 @@ REST API для блог-платформы с поддержкой ролево
 blog_api/
 ├── app/
 │   ├── core/
-│   │   ├── config.py       # Настройки (pydantic-settings)
-│   │   ├── database.py     # SQLAlchemy engine + сессия
-│   │   ├── logging.py      # Конфигурация логирования
-│   │   └── security.py     # JWT + хэширование паролей
-│   ├── models/             # SQLAlchemy-модели (3НФ)
+│   │   ├── config.py       
+│   │   ├── database.py     
+│   │   ├── logging.py      
+│   │   └── security.py     
+│   ├── models/             
 │   │   ├── user.py
 │   │   ├── category.py
 │   │   ├── post.py
 │   │   ├── comment.py
 │   │   ├── like.py
-│   │   └── action_log.py   # Постоянная история действий
-│   ├── schemas/            # Pydantic v2 схемы
-│   │   ├── user.py
-│   │   ├── category.py
-│   │   ├── post.py
-│   │   ├── comment.py
-│   │   ├── like.py
-│   │   └── action_log.py
-│   ├── crud/               # Синхронная логика работы с БД
+│   │   └── action_log.py   
+│   ├── schemas/            
 │   │   ├── user.py
 │   │   ├── category.py
 │   │   ├── post.py
 │   │   ├── comment.py
 │   │   ├── like.py
 │   │   └── action_log.py
-│   ├── routers/            # FastAPI роутеры
-│   │   ├── deps.py         # Зависимости (аутентификация, роли)
+│   ├── crud/               
+│   │   ├── user.py
+│   │   ├── category.py
+│   │   ├── post.py
+│   │   ├── comment.py
+│   │   ├── like.py
+│   │   └── action_log.py
+│   ├── routers/            
+│   │   ├── deps.py         
 │   │   ├── auth.py
 │   │   ├── users.py
 │   │   ├── categories.py
 │   │   ├── posts.py
 │   │   ├── comments.py
 │   │   ├── likes.py
-│   │   └── logs.py         # История действий (только Moderator)
-│   └── main.py             # Точка входа
-├── seed.py                 # Скрипт заполнения БД
+│   │   └── logs.py         
+│   └── main.py             
+├── seed.py                 
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
@@ -84,11 +84,11 @@ blog_api/
 └── README.md
 ```
 
----
+
 
 ## Запуск проекта
 
-### Вариант 1 — локально (без Docker)
+### localhost
 
 ```bash
 # 1. Клонировать репозиторий
@@ -116,9 +116,9 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 Приложение будет доступно по адресу: **http://localhost:8000**
 
----
 
-### Вариант 2 — через Docker Compose (рекомендуется)
+
+### Docker
 
 ```bash
 # 1. Клонировать репозиторий
@@ -141,7 +141,7 @@ docker compose down
 
 > **Примечание:** файл базы данных SQLite хранится в Docker volume `db_data` и **не теряется** при перезапуске или пересборке контейнера.
 
----
+
 
 ## Описание API
 
@@ -150,15 +150,13 @@ docker compose down
 - **Формат данных:** JSON (`Content-Type: application/json`)  
 - **Аутентификация:** `Authorization: Bearer <token>`  
 - **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)  
-- **ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc)  
-
 ### Базовый URL
 
 ```
 http://localhost:8000/api
 ```
 
----
+
 
 ### Эндпоинты
 
@@ -193,7 +191,7 @@ http://localhost:8000/api
 }
 ```
 
----
+
 
 #### Пользователи (`/api/users`)
 
@@ -205,7 +203,7 @@ http://localhost:8000/api
 | PATCH  | `/users/{id}`   | Обновление пользователя             | Сам / Moderator     |
 | DELETE | `/users/{id}`   | Удаление пользователя               | Сам / Moderator     |
 
----
+
 
 #### Категории (`/api/categories`)
 
@@ -217,7 +215,7 @@ http://localhost:8000/api
 | PUT    | `/categories/{id}`     | Обновить категорию    | Moderator  |
 | DELETE | `/categories/{id}`     | Удалить категорию     | Moderator  |
 
----
+
 
 #### Статьи (`/api/posts`)
 
@@ -254,7 +252,7 @@ GET /api/posts?page=1&limit=10&category=Технологии&status=published&so
 }
 ```
 
----
+
 
 #### Комментарии (`/api/posts/{post_id}/comments`)
 
@@ -265,7 +263,7 @@ GET /api/posts?page=1&limit=10&category=Технологии&status=published&so
 | PUT    | `/posts/{id}/comments/{id}` | Изменить комментарий   | Автор (своя) / Moderator   |
 | DELETE | `/posts/{id}/comments/{id}` | Удалить комментарий    | Автор (своя) / Moderator   |
 
----
+
 
 #### Лайки (`/api/posts/{post_id}/likes`)
 
@@ -274,7 +272,7 @@ GET /api/posts?page=1&limit=10&category=Технологии&status=published&so
 | GET   | `/posts/{id}/likes/`   | Статус лайка текущего пользователя    | Аутентифицированный |
 | POST  | `/posts/{id}/likes/`   | Лайк / анлайк (переключатель)         | Аутентифицированный |
 
----
+
 
 #### История действий (`/api/logs`)
 
@@ -299,9 +297,6 @@ GET /api/posts?page=1&limit=10&category=Технологии&status=published&so
 GET /api/logs/?entity_type=Post&action=delete
 ```
 
-> Данные, созданные скриптом `seed.py`, не попадают в эту историю — сидирование выполняется напрямую через модели SQLAlchemy, минуя CRUD-слой, поскольку у стартовых данных нет реального пользователя-инициатора. История начинает заполняться с первого реального действия через API.
-
----
 
 ## Валидация ключевых эндпоинтов
 
@@ -329,7 +324,7 @@ GET /api/logs/?entity_type=Post&action=delete
 }
 ```
 
----
+
 
 ## Матрица ролей
 
@@ -349,7 +344,7 @@ GET /api/logs/?entity_type=Post&action=delete
 
 > **Важно:** через `POST /auth/register` можно самостоятельно выбрать только роль `Reader` или `Author`. Роль `Moderator` нельзя получить регистрацией — её может выдать только уже существующий Moderator через `PATCH /users/{id}` (так нельзя выдать себе административные права в обход системы).
 
----
+
 
 ## Тестовые учётные данные (из seed.py)
 
@@ -359,26 +354,10 @@ GET /api/logs/?entity_type=Post&action=delete
 | Author     | `author_user` | `author123` |
 | Moderator  | `moderator`   | `moder123`  |
 
-**Быстрый старт через curl:**
-```bash
-# Получить токен
-TOKEN=$(curl -s -X POST http://localhost:8000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"author_user","password":"author123"}' | python -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
 
-# Создать статью
-curl -X POST http://localhost:8000/api/posts/ \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Моя первая статья","content":"Привет, мир!","status":"published"}'
-```
 
----
 
 ## Контакты
-
-По всем вопросам и предложениям обращайтесь:
-
-- **Email:** your-email@example.com
-- **GitHub:** https://github.com/your-username
-- **Telegram:** @your_telegram
+- **Email:** dmitrijbatalin1@gmail.com
+- **GitHub:** https://github.com/DimaBatalin
+- **Telegram:** @D1M0N
